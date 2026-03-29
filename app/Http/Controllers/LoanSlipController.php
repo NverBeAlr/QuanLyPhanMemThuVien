@@ -2,95 +2,103 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\loanSlip;
+use App\Models\LoanSlip;
+use App\Models\LoanSlipDetail;
 use Illuminate\Http\Request;
+use App\Models\Admin;
+use App\Models\Student;
+use App\Models\Book;
 
 class LoanSlipController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        $loanSlips = loanSlip::with('admin', 'student', 'loanSlipDetails')->get();
+        $loanSlips = LoanSlip::with('details.book','student','admin')->get();
         return view('loan_slips.index', compact('loanSlips'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        $admins = \App\Models\Admin::all();
-        $students = \App\Models\Student::all();
-        return view('loan_slips.create', compact('admins', 'students'));
+        $admins = Admin::all();
+        $students = Student::all();
+        $books = Book::all();
+
+        return view('loan_slips.create', compact('admins','students','books'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'admin_id' => 'required|exists:admins,id',
-            'student_id' => 'required|exists:students,id',
-            'start_date' => 'required|date',
-            'end_date' => 'nullable|date|after:start_date',
-            'return_date' => 'nullable|date|after:start_date',
-            'total_books' => 'required|integer|min:0',
-            'total_fee' => 'required|numeric|min:0',
-            'status' => 'required|string',
+        $request->validate([
+            'admin_id' => 'required',
+            'student_id' => 'required',
+            'books' => 'required|array'
         ]);
-        
-        loanSlip::create($validated);
-        return redirect()->route('loan_slips.index')->with('success', 'Phiếu mượn đã được tạo thành công');
-    }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(loanSlip $loanSlip)
-    {
-        $loanSlip->load('admin', 'student', 'loanSlipDetails.book');
-        return view('loan_slips.show', compact('loanSlip'));
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(loanSlip $loanSlip)
-    {
-        $admins = \App\Models\Admin::all();
-        $students = \App\Models\Student::all();
-        return view('loan_slips.edit', compact('loanSlip', 'admins', 'students'));
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, loanSlip $loanSlip)
-    {
-        $validated = $request->validate([
-            'admin_id' => 'required|exists:admins,id',
-            'student_id' => 'required|exists:students,id',
-            'start_date' => 'required|date',
-            'end_date' => 'nullable|date|after:start_date',
-            'return_date' => 'nullable|date|after:start_date',
-            'total_books' => 'required|integer|min:0',
-            'total_fee' => 'required|numeric|min:0',
-            'status' => 'required|string',
+        $loan = LoanSlip::create([
+            'admin_id' => $request->admin_id,
+            'student_id' => $request->student_id,
+            'start_date' => now(),
+            'due_date' => now()->addDays(14),
+            'status' => 'borrowed'
         ]);
-        
-        $loanSlip->update($validated);
-        return redirect()->route('loan_slips.index')->with('success', 'Phiếu mượn đã được cập nhật thành công');
+
+        // 🔥 Lưu nhiều sách
+        foreach ($request->books as $bookId) {
+            LoanSlipDetail::create([
+                'loan_slip_id' => $loan->id,
+                'book_id' => $bookId
+            ]);
+        }
+
+        return redirect()->route('loan_slips.index')
+            ->with('success','Thêm phiếu mượn thành công');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(loanSlip $loanSlip)
+
+
+    public function edit(LoanSlip $loanSlip)
     {
+        $loan = $loanSlip;
+        $admins = Admin::all();
+        $students = Student::all();
+        $books = Book::all();
+
+        return view('loan_slips.edit', compact('loan','loanSlip','admins','students','books'));
+    }
+
+    public function update(Request $request, LoanSlip $loanSlip)
+    {
+        $request->validate([
+            'admin_id' => 'required',
+            'student_id' => 'required',
+            'books' => 'required|array'
+        ]);
+
+        $loanSlip->update([
+            'admin_id' => $request->admin_id,
+            'student_id' => $request->student_id,
+        ]);
+
+        $loanSlip->details()->delete();
+
+
+        foreach ($request->books as $bookId) {
+            LoanSlipDetail::create([
+                'loan_slip_id' => $loanSlip->id,
+                'book_id' => $bookId
+            ]);
+        }
+
+        return redirect()->route('loan_slips.index')
+            ->with('success','Cập nhật thành công');
+    }
+
+    public function destroy(LoanSlip $loanSlip)
+    {
+        $loanSlip->details()->delete();
         $loanSlip->delete();
-        return redirect()->route('loan_slips.index')->with('success', 'Phiếu mượn đã được xóa thành công');
+
+        return redirect()->route('loan_slips.index')
+            ->with('success','Xóa thành công');
     }
 }

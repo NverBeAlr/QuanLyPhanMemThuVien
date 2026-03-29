@@ -2,99 +2,77 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\books;
+use App\Models\Book;
+use App\Models\Category;
+use App\Models\Publisher;
 use Illuminate\Http\Request;
+use App\Models\Author;
 
-class BooksController extends Controller
+class BookController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+
     public function index()
     {
-        $books = books::with('author', 'publisher', 'category')->get();
-        return view('admin_view.books.index', compact('books'));
+        $books = Book::with(['author','category','publisher'])->get();
+        return view('books.index', compact('books'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        $authors = \App\Models\author::all();
-        $publishers = \App\Models\publisher::all();
-        $categories = \App\Models\category::all();
-        return view('Book.create', compact('authors', 'publishers', 'categories'));
+        $authors = Author::all();
+        $categories = Category::all();
+        $publishers = Publisher::all();
+
+        return view('books.create', compact('authors', 'categories','publishers'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'author_id' => 'required|exists:authors,id',
-            'publisher_id' => 'required|exists:publishers,id',
-            'category_id' => 'required|exists:categories,id',
-            'total_quantity' => 'required|integer|min:0',
-            'available_quantity' => 'required|integer|min:0',
-            'year_published' => 'nullable|integer|min:1000|max:' . (date('Y') + 1),
-            'status' => 'required|string',
-            'description' => 'nullable|string',
+        $request->validate([
+            'name' => 'required',
+            'year_of_publication' => 'required|numeric',
+            'total_quantity' => 'required|numeric',
+            'available_quantity' => 'required|numeric',
+            'category_id' => 'required',
+            'publisher_id' => 'required'
         ]);
-        
-        books::create($validated);
-        return redirect()->route('books.index')->with('success', 'Sách đã được tạo thành công');
+
+        Book::create($request->all());
+
+        return redirect()->route('books.index');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(books $books)
+    public function edit(Book $book)
     {
-        $books->load('author', 'publisher', 'category');
-        return view('Book.show', compact('books'));
+        $authors = Author::all();
+        $categories = Category::all();
+        $publishers = Publisher::all();
+
+        return view('books.edit', compact(
+            'book',
+            'authors',
+            'categories',
+            'publishers'
+        ));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(books $books)
+    public function update(Request $request, Book $book)
     {
-        $authors = \App\Models\author::all();
-        $publishers = \App\Models\publisher::all();
-        $categories = \App\Models\category::all();
-        return view('Book.edit', compact('books', 'authors', 'publishers', 'categories'));
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, books $books)
-    {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'author_id' => 'required|exists:authors,id',
-            'publisher_id' => 'required|exists:publishers,id',
-            'category_id' => 'required|exists:categories,id',
-            'total_quantity' => 'required|integer|min:0',
-            'available_quantity' => 'required|integer|min:0',
-            'year_published' => 'nullable|integer|min:1000|max:' . (date('Y') + 1),
-            'status' => 'required|string',
-            'description' => 'nullable|string',
+        $request->validate([
+            'name' => 'required',
+            'year_of_publication' => 'required|numeric',
+            'total_quantity' => 'required|numeric',
+            'available_quantity' => 'required|numeric',
         ]);
-        
-        $books->update($validated);
-        return redirect()->route('books.index')->with('success', 'Sách đã được cập nhật thành công');
+
+        $book->update($request->all());
+
+        return redirect()->route('books.index');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(books $books)
+    public function destroy(Book $book)
     {
-        $books->delete();
-        return redirect()->route('books.index')->with('success', 'Sách đã được xóa thành công');
+        $book->delete();
+        return redirect()->route('books.index');
     }
 }

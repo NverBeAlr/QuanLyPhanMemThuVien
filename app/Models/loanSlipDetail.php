@@ -4,22 +4,31 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class loanSlipDetail extends Model
+class LoanSlip extends Model
 {
+    public function student()
+    {
+        return $this->belongsTo(Student::class , 'student_id');
+    }
+
+    public function admin()
+    {
+        return $this->belongsTo(Admin::class , 'admin_id');
+    }
+
+    public function details()
+    {
+        return $this->hasMany(LoanSlipDetail::class , 'loan_slip_id');
+    }
+
     protected $fillable = [
-        'loan_slip_id',
-        'book_id',
-        'fee_amount',
+        'admin_id',
+        'student_id',
+        'start_date',
+        'due_date',
+        'return_date',
+        'total_quantity',
+        'total_fine',
         'status',
     ];
-
-    public function loanSlip()
-    {
-        return $this->belongsTo(loanSlip::class, 'loan_slip_id');
-    }
-
-    public function book()
-    {
-        return $this->belongsTo(book::class, 'book_id');
-    }
 }

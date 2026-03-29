@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\loanSlipDetail;
+use App\Models\LoanSlipDetail;
 use Illuminate\Http\Request;
 
 class LoanSlipDetailController extends Controller
@@ -12,8 +12,8 @@ class LoanSlipDetailController extends Controller
      */
     public function index()
     {
-        $loanSlipDetails = loanSlipDetail::with('loanSlip', 'book')->get();
-        return view('loan_slip_detail.index', compact('loanSlipDetails'));
+        $loanSlipDetails = LoanSlipDetail::with('loanSlip','books')->get();
+        return view('loanSlipDetail.index', compact('loanSlipDetails'));
     }
 
     /**
@@ -21,9 +21,7 @@ class LoanSlipDetailController extends Controller
      */
     public function create()
     {
-        $loanSlips = \App\Models\loanSlip::all();
-        $books = \App\Models\books::all();
-        return view('loan_slip_detail.create', compact('loanSlips', 'books'));
+        return view('loanSlipDetail.create');
     }
 
     /**
@@ -31,58 +29,59 @@ class LoanSlipDetailController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'loan_slip_id' => 'required|exists:loan_slips,id',
-            'book_id' => 'required|exists:books,id',
-            'fee_amount' => 'required|numeric|min:0',
-            'status' => 'required|string',
+        $request->validate([
+            'loan_slip_id' => 'required',
+            'book_id' => 'required',
+            'quantity' => 'required|integer'
         ]);
-        
-        loanSlipDetail::create($validated);
-        return redirect()->route('loan_slip_detail.index')->with('success', 'Chi tiết phiếu mượn đã được tạo thành công');
+
+        LoanSlipDetail::create($request->all());
+
+        return redirect()->route('loanSlipDetail.index')
+            ->with('success','Thêm chi tiết phiếu mượn thành công');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(loanSlipDetail $loanSlipDetail)
+    public function show(LoanSlipDetail $loanSlipDetail)
     {
-        $loanSlipDetail->load('loanSlip', 'book');
-        return view('loan_slip_detail.show', compact('loanSlipDetail'));
+        return view('loanSlipDetail.show', compact('loanSlipDetail'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(loanSlipDetail $loanSlipDetail)
+    public function edit(LoanSlipDetail $loanSlipDetail)
     {
-        $loanSlips = \App\Models\loanSlip::all();
-        $books = \App\Models\books::all();
-        return view('loan_slip_detail.edit', compact('loanSlipDetail', 'loanSlips', 'books'));
+        return view('loanSlipDetail.edit', compact('loanSlipDetail'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, loanSlipDetail $loanSlipDetail)
+    public function update(Request $request, LoanSlipDetail $loanSlipDetail)
     {
-        $validated = $request->validate([
-            'loan_slip_id' => 'required|exists:loan_slips,id',
-            'book_id' => 'required|exists:books,id',
-            'fee_amount' => 'required|numeric|min:0',
-            'status' => 'required|string',
+        $request->validate([
+            'loan_slip_id' => 'required',
+            'book_id' => 'required',
+            'quantity' => 'required|integer'
         ]);
-        
-        $loanSlipDetail->update($validated);
-        return redirect()->route('loan_slip_detail.index')->with('success', 'Chi tiết phiếu mượn đã được cập nhật thành công');
+
+        $loanSlipDetail->update($request->all());
+
+        return redirect()->route('loanSlipDetail.index')
+            ->with('success','Cập nhật thành công');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(loanSlipDetail $loanSlipDetail)
+    public function destroy(LoanSlipDetail $loanSlipDetail)
     {
         $loanSlipDetail->delete();
-        return redirect()->route('loan_slip_detail.index')->with('success', 'Loan Slip Detail deleted successfully');
+
+        return redirect()->route('loanSlipDetail.index')
+            ->with('success','Xóa thành công');
     }
 }

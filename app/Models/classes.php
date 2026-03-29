@@ -4,17 +4,20 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class classes extends Model
+class Classes extends Model
 {
-    protected $fillable = [
-        'major_id',
-        'name',
-        'course_year',
-        'description',
-    ];
-
     public function major()
     {
-        return $this->belongsTo(major::class);
+        return $this->belongsTo(Major::class , 'major_id');
     }
+
+    public function student()
+    {
+        return $this->hasMany(Student::class);
+    }
+    protected $fillable = [
+        'name',
+        'course_year',
+        'major_id',
+    ];
 }

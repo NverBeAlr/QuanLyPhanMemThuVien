@@ -4,16 +4,26 @@ namespace App\Http\Controllers;
 
 use App\Models\Admin;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $admins = Admin::all();
-        return view('admin.index', compact('admins'));
+        $query = Admin::query();
+
+        // Tìm kiếm
+        if ($request->keyword) {
+            $query->where('name', 'like', '%' . $request->keyword . '%')
+                ->orWhere('email', 'like', '%' . $request->keyword . '%');
+        }
+
+        // Phân trang
+        $admins = $query->orderBy('id', 'desc')->paginate(3);
+        return view('admins.index', compact('admins'));
     }
 
     /**
@@ -21,7 +31,7 @@ class AdminController extends Controller
      */
     public function create()
     {
-        return view('admin.create');
+        return view('admins.create');
     }
 
     /**
@@ -29,17 +39,23 @@ class AdminController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:admins',
-            'password' => 'required|string|min:8|confirmed',
-            'phone_number' => 'nullable|string',
-            'role' => 'required|string',
+        $request->validate([
+            'name'=>'required',
+            'email'=>'required|email|unique:admins,email',
+            'password'=>'required|min:6'
         ]);
-        
-        $validated['password'] = bcrypt($validated['password']);
-        Admin::create($validated);
-        return redirect()->route('admin.index')->with('success', 'Quản trị viên đã được tạo thành công');
+
+        Admin::create([
+            'name'=>$request->name,
+            'email'=>$request->email,
+            'password'=>Hash::make($request->password),
+            'phone_number'=>$request->phone_number,
+            'address'=>$request->address,
+            'role'=>$request->role
+        ]);
+
+        return redirect()->route('admins.index')
+            ->with('success', 'Thêm thành công');
     }
 
     /**
@@ -47,7 +63,7 @@ class AdminController extends Controller
      */
     public function show(Admin $admin)
     {
-        return view('admin.show', compact('admin'));
+        //
     }
 
     /**
@@ -55,30 +71,31 @@ class AdminController extends Controller
      */
     public function edit(Admin $admin)
     {
-        return view('admin.edit', compact('admin'));
+        return view('admins.edit', compact('admin'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Admin $admin)
+    public function update(Request $request, $id)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:admins,email,' . $admin->id,
-            'password' => 'nullable|string|min:8|confirmed',
-            'phone_number' => 'nullable|string',
-            'role' => 'required|string',
-        ]);
-        
-        if (!empty($validated['password'])) {
-            $validated['password'] = bcrypt($validated['password']);
-        } else {
-            unset($validated['password']);
+        $admin = Admin::findOrFail($id);
+
+        $data = [
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone_number' => $request->phone_number,
+            'role' => $request->role,
+        ];
+
+        // ✅ Chỉ update password nếu có nhập
+        if ($request->filled('password')) {
+            $data['password'] = Hash::make($request->password);
         }
-        
-        $admin->update($validated);
-        return redirect()->route('admin.index')->with('success', 'Quản trị viên đã được cập nhật thành công');
+
+        $admin->update($data);
+
+        return redirect()->route('admins.index')->with('success', 'Cập nhật thành công');
     }
 
     /**
@@ -87,6 +104,6 @@ class AdminController extends Controller
     public function destroy(Admin $admin)
     {
         $admin->delete();
-        return redirect()->route('admin.index')->with('success', 'Quản trị viên đã được xóa thành công');
+        return redirect()->route('admins.index');
     }
 }

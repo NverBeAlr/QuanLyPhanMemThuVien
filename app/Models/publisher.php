@@ -11,4 +11,9 @@ class publisher extends Model
         'address',
         'phone_number',
     ];
+
+    public function book()
+    {
+        return $this->hasMany(Book::class);
+    }
 }

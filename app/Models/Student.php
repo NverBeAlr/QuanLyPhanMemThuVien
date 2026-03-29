@@ -18,10 +18,6 @@ class Student extends Model
         'status',
     ];
 
-    protected $hidden = [
-        'password',
-    ];
-
     public function classes()
     {
         return $this->belongsTo(classes::class, 'class_id');

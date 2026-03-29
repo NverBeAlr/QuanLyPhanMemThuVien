@@ -2,78 +2,55 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\major;
+use App\Models\Major;
 use Illuminate\Http\Request;
 
 class MajorController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        $majors = major::all();
-        return view('major.index', compact('majors'));
+        $majors = Major::all();
+        return view('majors.index', compact('majors'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        return view('major.create');
+        return view('majors.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
+        $request->validate([
+            'name' => 'required|max:255',
+            'description' => 'nullable'
         ]);
-        
-        major::create($validated);
-        return redirect()->route('majors.index')->with('success', 'Ngành học đã được tạo thành công');
+
+        Major::create($request->all());
+
+        return redirect()->route('majors.index');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(major $major)
+    public function edit(Major $major)
     {
-        return view('major.show', compact('major'));
+        return view('majors.edit', compact('major'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(major $major)
+    public function update(Request $request, Major $major)
     {
-        return view('major.edit', compact('major'));
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, major $major)
-    {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
+        $request->validate([
+            'name' => 'required|max:255',
+            'description' => 'nullable'
         ]);
-        
-        $major->update($validated);
-        return redirect()->route('majors.index')->with('success', 'Ngành học đã được cập nhật thành công');
+
+        $major->update($request->all());
+
+        return redirect()->route('majors.index');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(major $major)
+    public function destroy(Major $major)
     {
         $major->delete();
-        return redirect()->route('majors.index')->with('success', 'Major deleted successfully');
+
+        return redirect()->route('majors.index');
     }
 }

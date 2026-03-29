@@ -4,32 +4,32 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class books extends Model
+class Book extends Model
 {
-    protected $fillable = [
-        'name',
-        'author_id',
-        'publisher_id',
-        'category_id',
-        'total_quantity',
-        'available_quantity',
-        'year_published',
-        'status',
-        'description',
-    ];
-
     public function author()
     {
-        return $this->belongsTo(author::class);
+        return $this->belongsTo(Author::class , 'author_id');
     }
 
     public function publisher()
     {
-        return $this->belongsTo(publisher::class);
+        return $this->belongsTo(Publisher::class , 'publisher_id');
     }
 
     public function category()
     {
-        return $this->belongsTo(category::class);
+        return $this->belongsTo(Category::class , 'category_id');
     }
+
+    protected $fillable = [
+        'name',
+        'author_id',
+        'category_id',
+        'publisher_id',
+        'year_of_publication',
+        'total_quantity',
+        'available_quantity',
+        'status',
+        'description',
+    ];
 }

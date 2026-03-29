@@ -2,80 +2,51 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\author;
+use App\Models\Author;
 use Illuminate\Http\Request;
 
 class AuthorController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+
     public function index()
     {
-        $authors = author::all();
-        return view('Author.index', compact('authors'));
+        $authors = Author::all();
+        return view('authors.index', compact('authors'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        return view('Author.create');
+        return view('authors.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'date_of_birth' => 'nullable|date',
-            'description' => 'nullable|string',
+        $request->validate([
+            'name' => 'required'
         ]);
-        
-        author::create($validated);
-        return redirect()->route('authors.index')->with('success', 'Tác giả đã được tạo thành công');
+
+        Author::create($request->all());
+        return redirect()->route('authors.index');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(author $author)
+    public function edit(Author $author)
     {
-        return view('Author.show', compact('author'));
+        return view('authors.edit', compact('author'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(author $author)
+    public function update(Request $request, Author $author)
     {
-        return view('Author.edit', compact('author'));
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, author $author)
-    {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'date_of_birth' => 'nullable|date',
-            'description' => 'nullable|string',
+        $request->validate([
+            'name' => 'required'
         ]);
-        
-        $author->update($validated);
-        return redirect()->route('authors.index')->with('success', 'Tác giả đã được cập nhật thành công');
+
+        $author->update($request->all());
+        return redirect()->route('authors.index');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(author $author)
+    public function destroy(Author $author)
     {
         $author->delete();
-        return redirect()->route('authors.index')->with('success', 'Tác giả đã được xóa thành công');
+        return redirect()->route('authors.index');
     }
 }
