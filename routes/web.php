@@ -10,6 +10,7 @@ use App\Http\Controllers\LoanSlipDetailController;
 use App\Http\Controllers\MajorController;
 use App\Http\Controllers\PublisherController;
 use App\Http\Controllers\StudentController;
+use App\Http\Controllers\StudentAuthController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AdminAuthController;
@@ -40,4 +41,17 @@ Route::get('admin/login', [AdminAuthController::class,'showLogin'])->name('admin
 Route::post('admin/login', [AdminAuthController::class,'login'])->name('admin.login.post');
 Route::post('admin/logout', [AdminAuthController::class,'logout'])->name('admin.logout');
 
+// Student auth routes
+Route::get('student/login', [StudentAuthController::class, 'showLogin'])->name('login_student.login');
+Route::post('student/login', [StudentAuthController::class, 'login'])->name('login_student.login.post');
+Route::post('student/logout', [StudentAuthController::class, 'logout'])->name('student.logout');
+
+// Frontpage after student login
+Route::get('frontpage', function () {
+    return view('layouts.frontpage');
+})->name('layouts.frontpage');
+
+Route::get('student/login', [StudentAuthController::class,'showLogin'])->name('student.login');
+Route::post('student/login', [StudentAuthController::class,'login'])->name('student.login.post');
+Route::post('student/logout', [StudentAuthController::class,'logout'])->name('student.logout');
 
