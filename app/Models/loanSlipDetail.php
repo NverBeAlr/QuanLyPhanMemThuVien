@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class LoanSlip extends Model
+class LoanSlipDetail extends Model
 {
     public function student()
     {

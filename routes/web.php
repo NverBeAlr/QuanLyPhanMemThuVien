@@ -45,3 +45,9 @@ Route::post('admin/logout', [AdminAuthController::class,'logout'])->name('admin.
 Route::get('student/login', [StudentAuthController::class,'showLogin'])->name('student.login');
 Route::post('student/login', [StudentAuthController::class,'login'])->name('student.login.post');
 Route::post('student/logout', [StudentAuthController::class,'logout'])->name('student.logout');
+
+// Student borrow routes
+Route::middleware('auth:student')->group(function () {
+    Route::get('student/borrow', [StudentAuthController::class, 'showBorrow'])->name('student.borrow');
+    Route::post('student/borrow', [StudentAuthController::class, 'borrow'])->name('student.borrow.submit');
+});
