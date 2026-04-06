@@ -2,64 +2,95 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\book_details;
+use App\Models\BookDetail;
+use App\Models\Book;
 use Illuminate\Http\Request;
 
-class BookDetailsController extends Controller
+class BookDetailController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        $bookDetails = BookDetail::with('book')->get();
+        return view('book_details.index', compact('bookDetails'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        $books = Book::all();
+        return view('book_details.create', compact('books'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'barcode' => 'required|unique:book_details',
+            'name' => 'required',
+            'book_id' => 'required|exists:books,id',
+        ]);
+
+        $bookDetail = BookDetail::create([
+            'barcode' => $request->barcode,
+            'name' => $request->name,
+            'status' => 'available',
+            'book_id' => $request->book_id,
+        ]);
+
+        // 👉 cập nhật số lượng sách
+        $book = Book::find($request->book_id);
+        $book->increment('total_quantity');
+        $book->increment('available_quantity');
+
+        // 👉 nếu gọi từ AJAX (modal)
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'data' => $bookDetail
+            ]);
+        }
+
+        return back()->with('success', 'Thêm thành công');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(book_details $book_details)
+    public function edit($id)
     {
-        //
+        $bookDetail = BookDetail::findOrFail($id);
+        $books = Book::all();
+        return view('book_details.edit', compact('bookDetail', 'books'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(book_details $book_details)
+    public function update(Request $request, $id)
     {
-        //
+        $request->validate([
+            'barcode' => 'required|unique:book_details,barcode,' . $id,
+            'name' => 'required',
+        ]);
+
+        $bookDetail = BookDetail::findOrFail($id);
+
+        $bookDetail->update([
+            'barcode' => $request->barcode,
+            'name' => $request->name,
+            'status' => $request->status,
+        ]);
+
+        return back()->with('success', 'Cập nhật thành công');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, book_details $book_details)
+    public function destroy($id)
     {
-        //
-    }
+        $bookDetail = BookDetail::findOrFail($id);
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(book_details $book_details)
-    {
-        //
+        // ❗ cập nhật lại số lượng
+        $book = $bookDetail->book;
+
+        if ($bookDetail->status == 'available') {
+            $book->decrement('available_quantity');
+        }
+
+        $book->decrement('total_quantity');
+
+        $bookDetail->delete();
+
+        return back()->with('success', 'Xoá thành công');
     }
 }
