@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Student;
 use App\Models\Classes;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class StudentController extends Controller
 {
@@ -25,11 +26,15 @@ class StudentController extends Controller
         $request->validate([
             'name' => 'required|max:255',
             'email' => 'required|email|unique:students',
+            'password' => 'nullable|string|min:6',
             'phone_number' => 'nullable|max:20',
             'class_id' => 'required'
         ]);
 
-        Student::create($request->all());
+        $data = $request->all();
+        $data['password'] = Hash::make($request->input('password', '123456'));
+
+        Student::create($data);
 
         return redirect()->route('students.index');
     }

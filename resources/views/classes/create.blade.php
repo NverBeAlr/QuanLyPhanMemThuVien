@@ -46,7 +46,7 @@
                                    name="course_year"
                                    value="{{ old('course_year') }}"
                                    class="form-control @error('course_year') is-invalid @enderror"
-                                   placeholder="VD: 2023-2027">
+                                   placeholder="VD: 2023">
 
                             @error('course_year')
                             <div class="invalid-feedback">{{ $message }}</div>

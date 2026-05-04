@@ -62,9 +62,9 @@
 
                                 <td>
                                     @if($student->status == 'active')
-                                        <span class="badge bg-success">Hoạt động</span>
+                                        <span class="badge bg-success">Đang học</span>
                                     @else
-                                        <span class="badge bg-secondary">Ngưng</span>
+                                        <span class="badge bg-secondary">Đã tốt nghiệp</span>
                                     @endif
                                 </td>
 

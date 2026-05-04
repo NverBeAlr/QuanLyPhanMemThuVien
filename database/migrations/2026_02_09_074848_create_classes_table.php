@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('major_id')->constrained('majors')->onDelete('cascade');
             $table->string('name');
-            $table->integer('course_year')->nullable();
+            $table->string('course_year');
             $table->text('description')->nullable();
             $table->timestamps();
         });

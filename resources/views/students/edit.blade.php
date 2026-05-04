@@ -122,11 +122,11 @@
                             <label class="form-label">Trạng thái</label>
                             <select name="status" class="form-select">
                                 <option value="active" {{ old('status', $student->status)=='active'?'selected':'' }}>
-                                    Hoạt động
+                                    Đang học
                                 </option>
                                 <option
                                     value="inactive" {{ old('status', $student->status)=='inactive'?'selected':'' }}>
-                                    Ngừng
+                                    Đã tốt nghiệp
                                 </option>
                             </select>
                         </div>

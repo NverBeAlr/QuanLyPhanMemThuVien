@@ -37,10 +37,11 @@ class StudentAuthController extends Controller
         Auth::guard('student')->logout();
         return redirect()->route('login_student.login');
     }
+    
     public function showBorrow()
     {
         $books = Book::with('author', 'category')->where('available_copies', '>', 0)->get();
-        return view('login_student.layout', compact('books'));
+        return view('login_student.index', compact('books'));
     }
 
     public function borrow(Request $request)

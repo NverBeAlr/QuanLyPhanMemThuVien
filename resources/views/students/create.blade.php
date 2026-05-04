@@ -102,7 +102,9 @@
                         <div class="col-md-6">
                             <label class="form-label">Mật khẩu</label>
                             <input type="password" name="password"
-                                   class="form-control @error('password') is-invalid @enderror">
+                                   class="form-control @error('password') is-invalid @enderror"
+                                   placeholder="Để trống thì mặc định là 123456">
+                            <div class="form-text">Nếu không nhập, mật khẩu mặc định sẽ là <strong>123456</strong>.</div>
 
                             @error('password')
                             <div class="invalid-feedback">{{ $message }}</div>
@@ -129,8 +131,8 @@
                         <div class="col-md-6">
                             <label class="form-label">Trạng thái</label>
                             <select name="status" class="form-select">
-                                <option value="active" {{ old('status')=='active'?'selected':'' }}>Hoạt động</option>
-                                <option value="inactive" {{ old('status')=='inactive'?'selected':'' }}>Ngừng</option>
+                                <option value="active" {{ old('status')=='active'?'selected':'' }}>Đang học</option>
+                                <option value="inactive" {{ old('status')=='inactive'?'selected':'' }}>Đã tốt nghiệp</option>
                             </select>
                         </div>
 
