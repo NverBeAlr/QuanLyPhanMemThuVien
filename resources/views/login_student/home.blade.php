@@ -1,12 +1,8 @@
-@extends('layouts.app')
+@extends('layouts.layout_student')
+
+@section('title', 'Mượn sách')
 
 @section('content')
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mượn Sách - Quản Lý Thư Viện</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -14,17 +10,13 @@
             margin: 0;
             padding: 0;
         }
-        .container {
+        .student-container {
             max-width: 1200px;
             margin: 20px auto;
             padding: 20px;
             background-color: white;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        h1 {
-            text-align: center;
-            color: #333;
         }
         .book-list {
             display: flex;
@@ -104,9 +96,8 @@
             }
         }
     </style>
-</head>
-<body>
-    <div class="container">
+
+    <div class="student-container">
         <h1>Mượn Sách</h1>
 
         @if(session('success'))
@@ -163,12 +154,10 @@
             const index = selectedBooks.indexOf(bookId);
 
             if (index > -1) {
-                // Deselect
                 selectedBooks.splice(index, 1);
                 bookItem.classList.remove('selected');
                 button.textContent = 'Chọn Để Mượn';
             } else {
-                // Select
                 selectedBooks.push(bookId);
                 bookItem.classList.add('selected');
                 button.textContent = 'Bỏ Chọn';
@@ -184,7 +173,6 @@
             selectedBooks.forEach(id => {
                 const li = document.createElement('li');
                 li.textContent = `ID Sách: ${id}`;
-                // You might want to add hidden inputs here for form submission
                 const hiddenInput = document.createElement('input');
                 hiddenInput.type = 'hidden';
                 hiddenInput.name = 'book_ids[]';
@@ -199,6 +187,4 @@
             submitBtn.disabled = selectedBooks.length === 0;
         }
     </script>
-</body>
-</html>
 @endsection

@@ -46,8 +46,12 @@ Route::get('student/login', [StudentAuthController::class,'showLogin'])->name('s
 Route::post('student/login', [StudentAuthController::class,'login'])->name('student.login.post');
 Route::post('student/logout', [StudentAuthController::class,'logout'])->name('student.logout');
 
-// Student borrow routes
+// Student borrow and password routes
 Route::middleware('auth:student')->group(function () {
+    Route::get('student/password/change', [StudentAuthController::class, 'showChangePassword'])->name('student.password.change');
+    Route::post('student/password/change', [StudentAuthController::class, 'changePassword'])->name('student.password.update');
+    Route::get('student/profile', [StudentAuthController::class, 'showProfile'])->name('student.profile');
+    Route::post('student/profile', [StudentAuthController::class, 'updateProfile'])->name('student.profile.update');
     Route::get('student/borrow', [StudentAuthController::class, 'showBorrow'])->name('student.borrow');
     Route::post('student/borrow', [StudentAuthController::class, 'borrow'])->name('student.borrow.submit');
 });

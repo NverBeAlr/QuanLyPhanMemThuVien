@@ -33,6 +33,7 @@ class StudentController extends Controller
 
         $data = $request->all();
         $data['password'] = Hash::make($request->input('password', '123456'));
+        $data['password_changed_at'] = null;
 
         Student::create($data);
 
